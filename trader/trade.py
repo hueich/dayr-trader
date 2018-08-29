@@ -23,7 +23,7 @@ class Transaction(object):
 		else:
 			from_count = self.trade.from_count * self.count / self.trade.to_count
 			to_count = self.count
-		parts = ['From', str(from_count), self.trade.from_item, 'to', str(to_count), self.trade.to_item, 'at', self.trade.location]
+		parts = ['From', '%g' % from_count, self.trade.from_item, 'to', '%g' % to_count, self.trade.to_item, 'at', self.trade.location]
 		return ' '.join(parts)
 
 	def __repr__(self):
