@@ -30,14 +30,15 @@ class Transaction(object):
 		return str(self)
 
 
-def find_trade_routes_from(from_count, from_item, from_map, used_trades=None):
+def find_trade_routes_from(from_count, from_item, from_map, used_trades=None, starting_item=None):
 	used_trades = used_trades or set()
+	starting_item = starting_item or from_item
 	new_routes = []
-	for trade in [t for t in from_map.get(from_item, []) if t not in used_trades]:
+	for trade in [t for t in from_map.get(from_item, []) if t not in used_trades and not (used_trades and t.from_item == starting_item)]:
 		to_count = trade.to_count * from_count / trade.from_count
 		transaction = Transaction('to', to_count, trade)
 		used_trades.add(trade)
-		sub_routes = find_trade_routes_from(to_count, trade.to_item, from_map, used_trades)
+		sub_routes = find_trade_routes_from(to_count, trade.to_item, from_map, used_trades, starting_item)
 		used_trades.remove(trade)
 		new_routes.append([transaction] + sub_routes)
 	if len(new_routes) == 1:
@@ -45,14 +46,15 @@ def find_trade_routes_from(from_count, from_item, from_map, used_trades=None):
 	return new_routes
 
 
-def find_trade_routes_to(to_count, to_item, to_map, used_trades=None):
+def find_trade_routes_to(to_count, to_item, to_map, used_trades=None, starting_item=None):
 	used_trades = used_trades or set()
+	starting_item = starting_item or to_item
 	new_routes = []
-	for trade in [t for t in to_map.get(to_item, []) if t not in used_trades]:
+	for trade in [t for t in to_map.get(to_item, []) if t not in used_trades and not (used_trades and t.to_item == starting_item)]:
 		from_count = trade.from_count * to_count / trade.to_count
 		transaction = Transaction('from', from_count, trade)
 		used_trades.add(trade)
-		sub_routes = find_trade_routes_to(from_count, trade.from_item, to_map, used_trades)
+		sub_routes = find_trade_routes_to(from_count, trade.from_item, to_map, used_trades, starting_item)
 		used_trades.remove(trade)
 		new_routes.append([transaction] + sub_routes)
 	if len(new_routes) == 1:
